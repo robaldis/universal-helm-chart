@@ -1,0 +1,16 @@
+{{- $namespace := .Release.Namespace -}}
+{{- range $key, $value := .Values.deployments }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $key }}
+  namespace: {{ $namespace }}
+spec:
+  selector:
+    app: {{ $key | quote }}
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: {{ $value.port }}
+---
+{{- end}}

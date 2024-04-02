@@ -1,0 +1,28 @@
+{{- $namespace := .Release.Namespace -}}
+{{- range $key, $value := .Values.deployments }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $key }}-ingress
+  namespace: {{ $namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: traefik
+  rules: 
+  - host: {{ $value.ingress.url }} 
+    http: 
+      paths: 
+      - backend: 
+          service: 
+            name: {{ $key }}
+            port: 
+              number: 80
+        path: / 
+        pathType: Prefix 
+  tls:
+  - hosts:
+    - {{ $value.ingress.url }}
+    secretName: {{ $key }}-robertaldis-{{ $value.ingress.cert_env }}-tls
+---
+{{- end }}

@@ -1,0 +1,17 @@
+{{- $namespace := .Release.Namespace -}}
+{{- range $key, $value := .Values.deployments }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ $key }}-robertaldis-{{ $value.ingress.cert_env }}
+  namespace: {{ $namespace }}
+spec:
+  secretName: {{ $key }}-robertaldis-{{ $value.ingress.cert_env }}-tls
+  issuerRef:
+    name: letsencrypt-{{ $value.ingress.cert_env }}
+    kind: ClusterIssuer
+  commonName: {{ $value.ingress.url | quote}}
+  dnsNames:
+  - {{ $value.ingress.url | quote}}
+---
+{{- end }}

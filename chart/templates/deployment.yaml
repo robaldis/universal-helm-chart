@@ -1,0 +1,46 @@
+{{- $namespace := .Release.Namespace -}}
+{{- range $key, $value := .Values.deployments }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $key | quote}}
+  namespace: {{ $namespace }}
+  labels:
+    app: {{ $key | quote}}
+spec:
+  replicas: {{ $value.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ $key | quote }}
+  template:
+    metadata:
+      labels:
+        app: {{ $key | quote }}
+    spec:
+      containers:
+      - name: {{ $key | quote }}
+        image: {{ $value.image}}:{{ $value.tag}}
+        ports:
+        - containerPort: {{ $value.port }}
+        {{- if $value.env}}
+        env:
+          {{- range $env_key, $env_value := $value.env}}
+        - name: {{ $env_key }}
+          value: {{ $env_value }}
+          {{- end}}
+        {{- end}}
+        {{- if $value.storage}}
+        volumeMounts:
+        {{- range $storageName, $storage := $value.storage }}
+        - name: {{ $storageName }}
+          mountPath: {{ $storage.path }}
+        {{- end }}
+        {{- end }}
+      volumes: 
+      {{- range $storageName, $storage := $value.storage }}
+      - name: {{ $storageName }}
+        persistentVolumeClaim:
+          claimName: {{ $storageName }}-pvc
+      {{- end }}
+---
+{{- end}}
