@@ -48,3 +48,7 @@ deployments:
       cert_env: staging
 ```
 
+```bash
+ wget https://github.com/robaldis/universal-helm-chart/archive/refs/tags/v-0.1-alpha.zip && unzip -j v-0.1-alpha.zip
+ "universal-helm-chart-v-0.1-alpha/chart/*" -d chart && rm v-0.1-alpha.zip
+```
