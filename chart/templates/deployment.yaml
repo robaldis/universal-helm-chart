@@ -33,7 +33,7 @@ spec:
         env:
           {{- range $env_key, $env_value := $value.env}}
         - name: {{ $env_key }}
-          value: {{ $env_value }}
+          value: {{ $env_value | quote  }}
           {{- end}}
         {{- end}}
         {{- if $value.storage}}
