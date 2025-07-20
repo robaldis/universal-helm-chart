@@ -17,6 +17,13 @@ spec:
       labels:
         app: {{ $key | quote }}
     spec:
+      resources:
+        requests:
+          cpu: {{ $value.resources.requests.cpu | default "100m" | quote }}
+          memory: {{ $value.resources.requests.memory | default "100Mi" | quote }}
+        limits:
+          cpu: {{ $value.resources.limits.cpu | default "100m" | quote }}
+          memory: {{ $value.resources.limits.memory | default "100Mi" | quote }}
       containers:
       - name: {{ $key | quote }}
         image: {{ $value.image}}:{{ $value.tag}}
