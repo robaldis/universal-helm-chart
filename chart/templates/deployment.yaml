@@ -17,19 +17,19 @@ spec:
       labels:
         app: {{ $key | quote }}
     spec:
-      resources:
-        requests:
-          cpu: {{ $value.resources.requests.cpu | default "100m" | quote }}
-          memory: {{ $value.requests.memory | default "100Mi" | quote }}
-        limits:
-          cpu: {{ $value.resources.limits.cpu | default "100m" | quote }}
-          memory: {{ $value.limits.memory | default "100Mi" | quote }}
       containers:
       - name: {{ $key | quote }}
         image: {{ $value.image}}:{{ $value.tag}}
         ports:
         - containerPort: {{ $value.port }}
         {{- if $value.env}}
+        resources:
+          requests:
+            cpu: {{ $value.requests.cpu | default "100m" | quote }}
+            memory: {{ $value.requests.memory | default "100Mi" | quote }}
+          limits:
+            cpu: {{ $value.limits.cpu | default "100m" | quote }}
+            memory: {{ $value.limits.memory | default "100Mi" | quote }}
         env:
           {{- range $env_key, $env_value := $value.env}}
         - name: {{ $env_key }}
