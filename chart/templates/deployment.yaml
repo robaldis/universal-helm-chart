@@ -42,12 +42,12 @@ spec:
         - name: {{ $storageName }}
           mountPath: {{ $storage.path }}
         {{- end }}
-        {{- end }}
       volumes: 
       {{- range $storageName, $storage := $value.storage }}
       - name: {{ $storageName }}
         persistentVolumeClaim:
           claimName: {{ $storageName }}-pvc
+      {{- end }}
       {{- end }}
 ---
 {{- end}}
