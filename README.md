@@ -46,6 +46,14 @@ deployments:
     ingress: 
       url: nginx.your_url.com
       cert_env: staging
+    requests:
+      cpu: "100m"
+      memory: "100Mi"
+
+    limits:
+      cpu: "100m"
+      memory: "100Mi"
+
 ```
 
 ```bash
