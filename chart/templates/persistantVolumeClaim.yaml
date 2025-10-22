@@ -1,6 +1,7 @@
 {{- $namespace := .Release.Namespace -}}
 {{- range $key, $value := .Values.deployments }}
 {{- range $storageName, $storage := $value.storage }}
+{{- if $storage.class }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -14,5 +15,6 @@ spec:
     requests:
       storage: {{ $storage.capacity }}
 ---
+{{- end }}
 {{- end }}
 {{- end }}

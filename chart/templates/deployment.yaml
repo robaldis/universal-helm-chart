@@ -22,6 +22,9 @@ spec:
         image: {{ $value.image}}:{{ $value.tag}}
         ports:
         - containerPort: {{ $value.port }}
+        {{- if $value.args }}
+        args: {{toJson $value.args}}
+        {{- end}}
         {{- if $value.env}}
         resources:
           requests:
@@ -35,6 +38,13 @@ spec:
         - name: {{ $env_key }}
           value: {{ $env_value | quote  }}
           {{- end}}
+          {{- range $env_key, $env_value := $value.secretEnv}}
+        - name: {{ $env_key }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ $env_value.name }}
+              key: {{ $env_value.key }}
+          {{- end}}
         {{- end}}
         {{- if $value.storage}}
         volumeMounts:
@@ -44,10 +54,17 @@ spec:
         {{- end }}
       volumes: 
       {{- range $storageName, $storage := $value.storage }}
+      {{-  if $storage.secret }}
+      - name: {{ $storageName }}
+        secret:
+          secretName: {{ $storage.secret }}
+      {{- end }}
+      {{- if $storage.class }}
       - name: {{ $storageName }}
         persistentVolumeClaim:
           claimName: {{ $storageName }}-pvc
       {{- end }}
       {{- end }}
+      {{- end }}
 ---
-{{- end}}
+{{- end }}
