@@ -20,8 +20,18 @@ spec:
       containers:
       - name: {{ $key | quote }}
         image: {{ $value.image}}:{{ $value.tag}}
+
         ports:
+        {{- if $value.port }}
         - containerPort: {{ $value.port }}
+        {{- end }}
+        {{- if $value.portMap }}
+        {{- range $portKey, $port := $value.portMap }}
+        - containerPort: {{ $port.internal }}
+          name: {{ $portKey }}
+        {{- end }}
+        {{- end }}
+
         {{- if $value.args }}
         args: {{toJson $value.args}}
         {{- end}}
@@ -33,6 +43,11 @@ spec:
           limits:
             cpu: {{ $value.limits.cpu | default "100m" | quote }}
             memory: {{ $value.limits.memory | default "100Mi" | quote }}
+
+        {{- if eq $value.priverlaged "true" }}
+        securityContext:
+          privileged: true
+        {{- end}}
         env:
           {{- range $env_key, $env_value := $value.env}}
         - name: {{ $env_key }}
@@ -52,18 +67,30 @@ spec:
         - name: {{ $storageName }}
           mountPath: {{ $storage.path }}
         {{- end }}
+
       volumes: 
       {{- range $storageName, $storage := $value.storage }}
+
       {{-  if $storage.secret }}
       - name: {{ $storageName }}
         secret:
           secretName: {{ $storage.secret }}
       {{- end }}
+
+      {{- if ne $storage.class "empty" }}
       {{- if $storage.class }}
       - name: {{ $storageName }}
         persistentVolumeClaim:
           claimName: {{ $storageName }}-pvc
       {{- end }}
+      {{- end }}
+
+      {{- if eq $storage.class "empty" }}
+      - name: {{ $storageName }}
+        emptyDir:
+          sizeLimit: {{ $storage.capacity }}
+      {{- end }}
+
       {{- end }}
       {{- end }}
 ---

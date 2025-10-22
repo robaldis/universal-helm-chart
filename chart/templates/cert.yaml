@@ -1,5 +1,6 @@
 {{- $namespace := .Release.Namespace -}}
 {{- range $key, $value := .Values.deployments }}
+{{- if $value.ingress }}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -14,4 +15,5 @@ spec:
   dnsNames:
   - {{ $value.ingress.url | quote}}
 ---
+{{- end }}
 {{- end }}

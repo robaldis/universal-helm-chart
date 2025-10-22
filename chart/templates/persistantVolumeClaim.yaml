@@ -2,6 +2,7 @@
 {{- range $key, $value := .Values.deployments }}
 {{- range $storageName, $storage := $value.storage }}
 {{- if $storage.class }}
+{{- if ne $storage.class "empty" }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -15,6 +16,7 @@ spec:
     requests:
       storage: {{ $storage.capacity }}
 ---
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
