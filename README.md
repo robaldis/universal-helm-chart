@@ -32,10 +32,24 @@ deployments:
     # image
     image: nginx
     tag: 1.14.2
+    # type: LoadBalanacer # LoadBalanacer is the only special type
     port: 80 # this is the port that the application uses
+    # or
+    #portMap:
+    #  web: # just a name
+    #    external: 80
+    #    internal: 8080
+    #  atc: # just a name 
+    #    external: 2222
+    #    internal: 2222
 
     env: 
       key: value
+
+    secretEnv:
+      just-some-name: 
+        name: Secret-name # reference the actual secret
+        key: actual-secret # reference the key in the secret
 
     storage:
       main: # name the storage, Nothing can have the same name in the namespace
@@ -43,9 +57,13 @@ deployments:
         path: /data #Path in the container
         capacity: 1G
 
+    # get rid of this if you don't want ingress
+    # by default its a traefik ingress class name, this can't be overidden at 
+    # the moment 
     ingress: 
       url: nginx.your_url.com
       cert_env: staging
+
     requests:
       cpu: "100m"
       memory: "100Mi"
@@ -54,9 +72,4 @@ deployments:
       cpu: "100m"
       memory: "100Mi"
 
-```
-
-```bash
- wget https://github.com/robaldis/universal-helm-chart/archive/refs/tags/v-0.1-alpha.zip && unzip -j v-0.1-alpha.zip
- "universal-helm-chart-v-0.1-alpha/chart/*" -d chart && rm v-0.1-alpha.zip
 ```

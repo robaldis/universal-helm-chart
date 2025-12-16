@@ -6,6 +6,9 @@ metadata:
   name: {{ $key }}
   namespace: {{ $namespace }}
 spec:
+  {{- if eq $value.type "LoadBalancer" }}
+  type: {{ $value.type }}
+  {{- end }}
   selector:
     app: {{ $key | quote }}
   ports:
