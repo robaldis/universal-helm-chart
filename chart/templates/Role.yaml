@@ -1,0 +1,19 @@
+{{- $namespace := .Release.Namespace -}}
+{{- range $key, $value := .Values.deployments }}
+{{- if $value.roles }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ $key }}
+  namespace: {{ $namespace }}
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list"]
+
+{{- end }}
+{{- end }}

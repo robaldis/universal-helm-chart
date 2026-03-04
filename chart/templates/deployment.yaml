@@ -17,6 +17,15 @@ spec:
       labels:
         app: {{ $key | quote }}
     spec:
+      {{- if $value.roles }}
+      serviceAccountName: {{ $key }}
+      {{- end }}
+      {{- if $value.master }}
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+        effect: "NoSchedule"
+      {{- end }}
       containers:
       - name: {{ $key | quote }}
         image: {{ $value.image}}:{{ $value.tag}}
