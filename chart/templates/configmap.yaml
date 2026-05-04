@@ -1,0 +1,18 @@
+{{- $namespace := .Release.Namespace -}}
+{{- range $deploymentKey, $deploymentValue := .Values.deployments }}
+{{- if $deploymentValue.configs }}
+{{- range $configName, $configData := $deploymentValue.configs }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $configName | quote }}
+  namespace: {{ $namespace }}
+data:
+  {{- range $fileName, $fileContent := $configData }}
+  {{ $fileName }}: |
+{{ $fileContent | indent 4 }}
+  {{- end }}
+---
+{{- end }}
+{{- end }}
+{{- end }}
