@@ -18,14 +18,8 @@ spec:
       labels:
         app: {{ $key | quote }}
     spec:
-      {{- if $value.roles }}
-      serviceAccountName: {{ $key }}
-      {{- end }}
-      {{- if $value.master }}
-      tolerations:
-      - key: "node-role.kubernetes.io/master"
-        operator: "Exists"
-        effect: "NoSchedule"
+      {{- if $value.serviceAccount.create }}
+      serviceAccountName: {{ $value.serviceAccount.name | default $key | quote }}
       {{- end }}
       containers:
       - name: {{ $key | quote }}

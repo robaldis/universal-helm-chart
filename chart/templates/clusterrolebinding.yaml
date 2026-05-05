@@ -1,0 +1,18 @@
+{{- $namespace := .Release.Namespace -}}
+{{- range $key, $value := .Values.deployments }}
+{{- if and (eq $value.type "deployment") $value.clusterRbac.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ printf "%s-cluster-rolebinding" ($value.serviceAccount.name | default $key) | quote }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ $value.serviceAccount.name | default $key | quote }}
+    namespace: {{ $namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ printf "%s-cluster-role" ($value.serviceAccount.name | default $key) | quote }}
+  apiGroup: rbac.authorization.k8s.io
+---
+{{- end }}
+{{- end }}
