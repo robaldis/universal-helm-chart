@@ -77,6 +77,9 @@ spec:
           {{- range $storageName, $storage := $value.storage }}
           - name: {{ $storageName }}
             mountPath: {{ $storage.path }}
+            {{- if and (eq ($storage.type | default "pvc") "hostPath") $storage.readOnly }}
+            readOnly: {{ $storage.readOnly }}
+            {{- end }}
           {{- end }}
           {{- end }}
           {{- if $value.files }}
@@ -91,9 +94,18 @@ spec:
       volumes:
         {{- if $value.storage }}
         {{- range $storageName, $storage := $value.storage }}
+        {{- $volumeType := $storage.type | default "pvc" }}
         - name: {{ $storageName }}
+          {{- if eq $volumeType "hostPath" }}
+          hostPath:
+            path: {{ $storage.hostPath }}
+            {{- if $storage.hostPathType }}
+            type: {{ $storage.hostPathType }}
+            {{- end }}
+          {{- else }}
           persistentVolumeClaim:
             claimName: {{ $storageName }}-pvc
+          {{- end }}
         {{- end }}
         {{- end }}
         {{- if $value.files }}
