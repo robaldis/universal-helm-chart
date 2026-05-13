@@ -1,13 +1,14 @@
 {{- $namespace := .Release.Namespace -}}
 {{- range $key, $value := .Values.deployments }}
-{{- if eq $value.type "deployment"}}
+  {{- if eq $value.type "deployment"}}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $key | quote}}
+  name: {{ $key | quote }}
   namespace: {{ $namespace }}
   labels:
-    app: {{ $key | quote}}
+    app: {{ $key | quote }}
 spec:
   replicas: {{ $value.replicas | default 1 }}
   selector:
@@ -18,28 +19,32 @@ spec:
       labels:
         app: {{ $key | quote }}
     spec:
-      {{- if $value.serviceAccount.create }}
+
+    {{- if $value.serviceAccount.create }}
       serviceAccountName: {{ $value.serviceAccount.name | default $key | quote }}
-      {{- end }}
+    {{- end }}
       containers:
       - name: {{ $key | quote }}
-        image: {{ $value.image}}:{{ $value.tag}}
+        image: {{ $value.image }}:{{ $value.tag }}
 
         ports:
-        {{- if $value.port }}
+    {{- if $value.port }}
         - containerPort: {{ $value.port }}
-        {{- end }}
-        {{- if $value.portMap }}
-        {{- range $portKey, $port := $value.portMap }}
+    {{- end }}
+
+    {{- if $value.portMap }}
+      {{- range $portKey, $port := $value.portMap }}
         - containerPort: {{ $port.internal }}
           name: {{ $portKey }}
-        {{- end }}
-        {{- end }}
+      {{- end }}
+    {{- end }}
 
-        {{- if $value.args }}
-        args: {{toJson $value.args}}
-        {{- end}}
-        {{- if $value.env}}
+
+    {{- if $value.args }}
+        args: {{ toJson $value.args }}
+    {{- end }}
+
+    {{- if $value.env }}
         resources:
           requests:
             cpu: {{ $value.requests.cpu | default "100m" | quote }}
@@ -48,45 +53,47 @@ spec:
             cpu: {{ $value.limits.cpu | default "100m" | quote }}
             memory: {{ $value.limits.memory | default "100Mi" | quote }}
 
-        {{- if eq $value.priverlaged "true" }}
+      {{- if eq $value.priverlaged "true" }}
         securityContext:
           privileged: true
-        {{- end}}
+      {{- end }}
+
         env:
-          {{- range $env_key, $env_value := $value.env}}
+      {{- range $env_key, $env_value := $value.env }}
           - name: {{ $env_key }}
-            value: {{ $env_value | quote  }}
-          {{- end}}
-          {{- range $env_key, $env_value := $value.secretEnv}}
-        - name: {{ $env_key }}
-          valueFrom:
-            secretKeyRef:
-              name: {{ $env_value.name }}
-              key: {{ $env_value.key }}
-          {{- end}}
-        {{- end}}
-        {{- if or $value.storage $value.files }}
+            value: {{ $env_value | quote }}
+      {{- end }}
+      {{- range $env_key, $env_value := $value.secretEnv }}
+          - name: {{ $env_key }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $env_value.name }}
+                key: {{ $env_value.key }}
+      {{- end }}
+    {{- end }}
+
+    {{- if or $value.storage $value.files }}
         volumeMounts:
-          {{- if $value.storage }}
-          {{- range $storageName, $storage := $value.storage }}
+      {{- if $value.storage }}
+        {{- range $storageName, $storage := $value.storage }}
           - name: {{ $storageName }}
             mountPath: {{ $storage.path }}
-            {{- if and (eq ($storage.type | default "pvc") "hostPath") $storage.readOnly }}
+          {{- if and (eq ($storage.type | default "pvc") "hostPath") $storage.readOnly }}
             readOnly: {{ $storage.readOnly }}
-            {{- end }}
-          {{- end }}
-          {{- end }}
-          {{- if $value.files }}
-          {{- range $file := $value.files }}
-          - name: {{ $file.configName }}
-            mountPath: {{ $file.mountPath }}
-          {{- end }}
           {{- end }}
         {{- end }}
+      {{- end }}
+      {{- if $value.files }}
+        {{- range $file := $value.files }}
+          - name: {{ $file.configName }}
+            mountPath: {{ $file.mountPath }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
 
-      {{- if or $value.storage $value.files }}
+    {{- if or $value.storage $value.files }}
       volumes:
-        {{- if $value.storage }}
+      {{- if $value.storage }}
         {{- range $storageName, $storage := $value.storage }}
         {{- $volumeType := $storage.type | default "pvc" }}
         - name: {{ $storageName }}
@@ -96,29 +103,28 @@ spec:
             {{- if $storage.hostPathType }}
             type: {{ $storage.hostPathType }}
             {{- end }}
-          {{- else }}
+          {{- end }}
+          {{- if eq $volumeType "empty" }}
+          emptyDir:
+            {{- if $storage.capacity }}
+            sizeLimit: {{ $storage.capacity }}
+            {{- end }}
+          {{- end }}
+          {{- if eq $volumeType "pvc" }}
           persistentVolumeClaim:
             claimName: {{ $storageName }}-pvc
           {{- end }}
         {{- end }}
-        {{- end }}
-        {{- if $value.files }}
+      {{- end }}
+      {{- if $value.files }}
         {{- range $file := $value.files }}
         - name: {{ $file.configName }}
           configMap:
             name: {{ $file.configName }}
         {{- end }}
-        {{- end }}
       {{- end }}
+    {{- end }}
 
-      {{- if eq $storage.class "empty" }}
-      - name: {{ $storageName }}
-        emptyDir:
-          sizeLimit: {{ $storage.capacity }}
-      {{- end }}
-
-      {{- end }}
-      {{- end }}
+  {{- end }}
 ---
-{{- end}}
-{{- end}}
+{{- end }}

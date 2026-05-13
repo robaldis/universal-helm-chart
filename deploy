@@ -2,4 +2,4 @@
 
 helm package chart
 
-helm push universal-helm-chart-0.1.3.tgz oci://registry.robertaldis.com
+helm push universal-helm-chart-0.1.10.tgz oci://registry.robertaldis.com
