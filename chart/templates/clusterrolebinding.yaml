@@ -1,6 +1,6 @@
 {{- $namespace := .Release.Namespace -}}
 {{- range $key, $value := .Values.deployments }}
-{{- if and (eq $value.type "deployment") $value.clusterRbac.enabled }}
+{{- if and (eq $value.type "deployment") $value.clusterRbac }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:

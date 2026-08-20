@@ -23,8 +23,10 @@ spec:
       containers:
       - name: {{ $key | quote }}
         image: {{ $value.image}}:{{ $value.tag}}
+
         ports:
-        - containerPort: {{ $value.port }}
+          {{ include "ports.entries" $value | indent 8 }}
+
         {{- if $value.env}}
         env:
           {{- range $env_key, $env_value := $value.env}}
@@ -34,21 +36,7 @@ spec:
         {{- end}}
         {{- if or $value.storage $value.files }}
         volumeMounts:
-          {{- if $value.storage }}
-          {{- range $storageName, $storage := $value.storage }}
-          - name: {{ $storageName }}
-            mountPath: {{ $storage.path }}
-            {{- if and (eq ($storage.type | default "pvc") "hostPath") $storage.readOnly }}
-            readOnly: {{ $storage.readOnly }}
-            {{- end }}
-          {{- end }}
-          {{- end }}
-          {{- if $value.files }}
-          {{- range $file := $value.files }}
-          - name: {{ $file.configName }}
-            mountPath: {{ $file.mountPath }}
-          {{- end }}
-          {{- end }}
+{{ include "storage.volumeMounts" $value | indent 10 }}
         {{- end }}
 
       {{- if or $value.storage $value.files }}

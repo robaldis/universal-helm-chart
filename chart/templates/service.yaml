@@ -12,18 +12,20 @@ spec:
   selector:
     app: {{ $key | quote }}
   ports:
-    {{- if $value.port }}
-    - protocol: TCP
+  {{- if $value.port }}
+    - name: web
+      protocol: TCP
       port:  80
       targetPort: {{ $value.port }}
-    {{- end }}
-    {{- if $value.portMap }}
+  {{- end }}
+
+  {{- if $value.portMap }}
     {{- range $portsKey, $ports := $value.portMap }}
     - name: {{ $portsKey }}
       protocol: {{ $ports.protocol | default "TCP" }}
       port:  {{ $ports.external }}
       targetPort: {{ $ports.internal }}
     {{- end }}
-    {{- end }}
+  {{- end }}
 ---
 {{- end}}

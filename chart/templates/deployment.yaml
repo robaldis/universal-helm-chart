@@ -20,7 +20,7 @@ spec:
         app: {{ $key | quote }}
     spec:
 
-    {{- if $value.serviceAccount.create }}
+    {{- if $value.serviceAccount }}
       serviceAccountName: {{ $value.serviceAccount.name | default $key | quote }}
     {{- end }}
       containers:
@@ -28,101 +28,31 @@ spec:
         image: {{ $value.image }}:{{ $value.tag }}
 
         ports:
-    {{- if $value.port }}
-        - containerPort: {{ $value.port }}
-    {{- end }}
-
-    {{- if $value.portMap }}
-      {{- range $portKey, $port := $value.portMap }}
-        - containerPort: {{ $port.internal }}
-          name: {{ $portKey }}
-      {{- end }}
-    {{- end }}
-
+{{ include "ports.entries" $value | indent 8 }}
 
     {{- if $value.args }}
-        args: {{ toJson $value.args }}
+{{ include "config.args" $value | indent 8 }}
     {{- end }}
 
     {{- if $value.env }}
-        resources:
-          requests:
-            cpu: {{ $value.requests.cpu | default "100m" | quote }}
-            memory: {{ $value.requests.memory | default "100Mi" | quote }}
-          limits:
-            cpu: {{ $value.limits.cpu | default "100m" | quote }}
-            memory: {{ $value.limits.memory | default "100Mi" | quote }}
+{{ include "resources.spec" $value | indent 8 }}
 
       {{- if eq $value.priverlaged "true" }}
-        securityContext:
-          privileged: true
+{{ include "config.security" $value | indent 8 }}
       {{- end }}
 
         env:
-      {{- range $env_key, $env_value := $value.env }}
-          - name: {{ $env_key }}
-            value: {{ $env_value | quote }}
-      {{- end }}
-      {{- range $env_key, $env_value := $value.secretEnv }}
-          - name: {{ $env_key }}
-            valueFrom:
-              secretKeyRef:
-                name: {{ $env_value.name }}
-                key: {{ $env_value.key }}
-      {{- end }}
+{{ include "env.vars" $value | indent 10 }}
     {{- end }}
 
     {{- if or $value.storage $value.files }}
         volumeMounts:
-      {{- if $value.storage }}
-        {{- range $storageName, $storage := $value.storage }}
-          - name: {{ $storageName }}
-            mountPath: {{ $storage.path }}
-          {{- if and (eq ($storage.type | default "pvc") "hostPath") $storage.readOnly }}
-            readOnly: {{ $storage.readOnly }}
-          {{- end }}
-        {{- end }}
-      {{- end }}
-      {{- if $value.files }}
-        {{- range $file := $value.files }}
-          - name: {{ $file.configName }}
-            mountPath: {{ $file.mountPath }}
-        {{- end }}
-      {{- end }}
+{{ include "storage.volumeMounts" $value | indent 10 }}
     {{- end }}
 
     {{- if or $value.storage $value.files }}
       volumes:
-      {{- if $value.storage }}
-        {{- range $storageName, $storage := $value.storage }}
-        {{- $volumeType := $storage.type | default "pvc" }}
-        - name: {{ $storageName }}
-          {{- if eq $volumeType "hostPath" }}
-          hostPath:
-            path: {{ $storage.hostPath }}
-            {{- if $storage.hostPathType }}
-            type: {{ $storage.hostPathType }}
-            {{- end }}
-          {{- end }}
-          {{- if eq $volumeType "empty" }}
-          emptyDir:
-            {{- if $storage.capacity }}
-            sizeLimit: {{ $storage.capacity }}
-            {{- end }}
-          {{- end }}
-          {{- if eq $volumeType "pvc" }}
-          persistentVolumeClaim:
-            claimName: {{ $storageName }}-pvc
-          {{- end }}
-        {{- end }}
-      {{- end }}
-      {{- if $value.files }}
-        {{- range $file := $value.files }}
-        - name: {{ $file.configName }}
-          configMap:
-            name: {{ $file.configName }}
-        {{- end }}
-      {{- end }}
+{{ include "storage.volumes" $value | indent 8 }}
     {{- end }}
 
   {{- end }}
