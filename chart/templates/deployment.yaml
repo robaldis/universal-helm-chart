@@ -23,6 +23,14 @@ spec:
     {{- if $value.serviceAccount }}
       serviceAccountName: {{ $value.serviceAccount.name | default $key | quote }}
     {{- end }}
+
+    {{- if $value.master }}
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+        effect: "NoSchedule"
+    {{- end }}
+
       containers:
       - name: {{ $key | quote }}
         image: {{ $value.image }}:{{ $value.tag }}
