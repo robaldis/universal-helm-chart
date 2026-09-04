@@ -24,6 +24,9 @@ spec:
       serviceAccountName: {{ $value.serviceAccount.name | default $key | quote }}
     {{- end }}
 
+    {{- if $value.roles }}
+      serviceAccountName: {{  $key }}
+    {{- end }}
     {{- if $value.master }}
       tolerations:
       - key: "node-role.kubernetes.io/master"

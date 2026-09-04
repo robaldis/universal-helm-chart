@@ -9,7 +9,7 @@ metadata:
 spec:
   secretName: {{ $key }}-robertaldis-{{ $value.ingress.cert_env }}-tls
   issuerRef:
-    name: letsencrypt-{{ $value.ingress.cert_env }}
+    name: robertaldis-{{ $value.ingress.cert_env }}
     kind: ClusterIssuer
   commonName: {{ $value.ingress.url | quote}}
   dnsNames:
