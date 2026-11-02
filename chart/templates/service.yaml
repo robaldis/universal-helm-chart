@@ -6,8 +6,8 @@ metadata:
   name: {{ $key }}
   namespace: {{ $namespace }}
 spec:
-  {{- if eq $value.type "LoadBalancer" }}
-  type: {{ $value.type }}
+  {{- if $value.LoadBalancer }}
+  type: LoadBalancer
   {{- end }}
   selector:
     app: {{ $key | quote }}

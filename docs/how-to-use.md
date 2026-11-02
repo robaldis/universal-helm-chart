@@ -127,3 +127,25 @@ Valid options for type:
 - `daemonset`
 - `deployment`
 
+
+## LoadBalancer
+
+By default the service is a `ClusterIP`. To expose it as a `LoadBalancer`, set
+`LoadBalancer: true`. This works with either `type`.
+
+```yaml
+deployments:
+  bind9:
+    image: ubuntu/bind9
+    tag: latest
+    type: deployment
+    LoadBalancer: true
+    portMap:
+      dns-tcp:
+        external: 53
+        internal: 53
+      dns-udp:
+        protocol: UDP
+        external: 53
+        internal: 53
+```
