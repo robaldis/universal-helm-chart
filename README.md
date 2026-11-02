@@ -27,6 +27,9 @@ enough for simple deployments.
 
 Basic yaml to deploy 1 service:
 ```yaml
+# Optional: override the base domain used when deployments set `ingress.subdomain`
+# instead of a full `ingress.url`. e.g. baseDomain: test.robertaldis.com
+baseDomain: robertaldis.com
 deployments:
   application:  # name of the application
     # image
@@ -61,7 +64,11 @@ deployments:
     # by default its a traefik ingress class name, this can't be overidden at 
     # the moment 
     ingress: 
-      url: nginx.your_url.com
+      # Either a full URL (source of truth, used as-is):
+      url: nginx.robertaldis.com
+      # Or a subdomain composed with the top-level `baseDomain` above
+      # (e.g. subdomain: nginx + baseDomain: robertaldis.com -> nginx.robertaldis.com):
+      # subdomain: nginx
       cert_env: staging
 
     requests:

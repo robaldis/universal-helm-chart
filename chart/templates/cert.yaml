@@ -1,6 +1,7 @@
 {{- $namespace := .Release.Namespace -}}
 {{- range $key, $value := .Values.deployments }}
 {{- if $value.ingress }}
+{{- $host := include "ingress.host" (dict "ingress" $value.ingress "baseDomain" $.Values.baseDomain) | trim -}}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -11,9 +12,9 @@ spec:
   issuerRef:
     name: robertaldis-{{ $value.ingress.cert_env }}
     kind: ClusterIssuer
-  commonName: {{ $value.ingress.url | quote}}
+  commonName: {{ $host | quote}}
   dnsNames:
-  - {{ $value.ingress.url | quote}}
+  - {{ $host | quote}}
 ---
 {{- end }}
 {{- end }}
