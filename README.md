@@ -35,7 +35,8 @@ deployments:
     # image
     image: nginx
     tag: 1.14.2
-    # type: LoadBalanacer # LoadBalanacer is the only special type
+    type: deployment # or daemonset
+    # LoadBalancer: true # expose the service as a LoadBalancer instead of ClusterIP
     port: 80 # this is the port that the application uses
     # or
     #portMap:
