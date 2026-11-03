@@ -6,6 +6,7 @@
 {{- range $portKey, $port := .portMap }}
 - containerPort: {{ $port.internal }}
   name: {{ $portKey }}
+  protocol: {{ $port.protocol | default "TCP" }}
 {{- end }}
 {{- end }}
 {{- end -}}
